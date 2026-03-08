@@ -89,11 +89,14 @@
     const originalText = btn.textContent;
     const accessKey = form.querySelector('input[name="access_key"]').value;
 
+    // Helper: get translated string or fallback
+    const t = (key, fallback) => (window.plexI18n ? window.plexI18n.getSync(key) : null) || fallback;
+
     // If access key isn't configured, show message
     if (accessKey === 'YOUR_ACCESS_KEY') {
-      btn.textContent = 'Form not configured yet';
+      btn.textContent = t('form_not_configured', 'Form not configured yet');
       btn.disabled = true;
-      formStatus.textContent = 'Replace YOUR_ACCESS_KEY with your Web3Forms access key.';
+      formStatus.textContent = t('form_configure_msg', 'Replace YOUR_ACCESS_KEY with your Web3Forms access key.');
       formStatus.className = 'form-status form-status--error';
       setTimeout(() => {
         btn.textContent = originalText;
@@ -103,7 +106,7 @@
     }
 
     // Submit via AJAX
-    btn.textContent = 'Sending...';
+    btn.textContent = t('form_sending', 'Sending...');
     btn.disabled = true;
     formStatus.textContent = '';
     formStatus.className = 'form-status';
@@ -117,17 +120,17 @@
       const json = await res.json();
 
       if (json.success) {
-        formStatus.textContent = 'Message sent. We\u2019ll be in touch soon.';
+        formStatus.textContent = t('form_success', 'Message sent. We\u2019ll be in touch soon.');
         formStatus.className = 'form-status form-status--success';
         form.reset();
         // Re-set hidden fields after reset
         form.querySelector('input[name="access_key"]').value = accessKey;
       } else {
-        formStatus.textContent = 'Something went wrong. Please try again.';
+        formStatus.textContent = t('form_error', 'Something went wrong. Please try again.');
         formStatus.className = 'form-status form-status--error';
       }
     } catch (err) {
-      formStatus.textContent = 'Network error. Please try again later.';
+      formStatus.textContent = t('form_network_error', 'Network error. Please try again later.');
       formStatus.className = 'form-status form-status--error';
     }
 

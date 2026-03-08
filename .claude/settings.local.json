@@ -4,7 +4,11 @@
       "mcp__Claude_Preview__preview_start",
       "Bash(gh api repos/plexconcert/plexconcert/pages -X PUT -f cname=\"web.plexconcert.com\" -f source.branch=\"main\" -f source.path=\"/\")",
       "Bash(gh api repos/plexconcert/plexconcert/pages)",
-      "Bash(gh api repos/plexconcert/plexconcert/pages -X PUT -f cname=\"web.plexconcert.com\" -F https_enforced=true)"
+      "Bash(gh api repos/plexconcert/plexconcert/pages -X PUT -f cname=\"web.plexconcert.com\" -F https_enforced=true)",
+      "Bash(git add -A)",
+      "Bash(git commit -m \"international version\")",
+      "Bash(git pull --rebase)",
+      "Bash(git push)"
     ]
   }
 }

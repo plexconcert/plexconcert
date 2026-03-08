@@ -506,20 +506,33 @@
   }
 
   // --- Events ---
-  canvas.addEventListener('mousemove', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    mouseX = e.clientX - rect.left;
-    mouseY = e.clientY - rect.top;
-  });
+  // Detect touch device — disable mouse interaction on mobile
+  const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
-  canvas.addEventListener('mouseleave', () => {
-    mouseX = -1000;
-    mouseY = -1000;
-  });
+  if (!isTouchDevice) {
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+    });
 
+    canvas.addEventListener('mouseleave', () => {
+      mouseX = -1000;
+      mouseY = -1000;
+    });
+  }
+
+  // Resize: only re-scatter if width actually changed (not mobile address bar hide/show)
+  let lastWidth = width;
   window.addEventListener('resize', () => {
+    const prevW = lastWidth;
     resize();
-    dots.forEach(d => d.scatter());
+    lastWidth = width;
+    // Only scatter dots if the width changed (true resize / orientation change)
+    // Skip if only height changed (mobile scroll bar show/hide)
+    if (Math.abs(width - prevW) > 10) {
+      dots.forEach(d => d.scatter());
+    }
   });
 
   document.addEventListener('visibilitychange', () => {
