@@ -17,7 +17,7 @@
   let animationId;
 
   // --- Configuration ---
-  const DOT_COUNT = 138;
+  const DOT_COUNT = 180;
   const CONNECTION_DIST = 120;      // strong connections
   const CONNECTION_DIST_FAR = 350;  // faint connections between all dots
   const TEAM_SIZE = 12;
