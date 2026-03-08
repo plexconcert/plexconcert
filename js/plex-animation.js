@@ -392,8 +392,8 @@
       dots.push(new Dot(i));
     }
     teams = [
-      new TeamSlot(0),
-      new TeamSlot(TEAM_CYCLE / 2),
+      new TeamSlot(TEAM_CYCLE - 2),          // first effect visible ~2s after load
+      new TeamSlot(TEAM_CYCLE / 2 - 2),      // second slot keeps same 12s offset
     ];
   }
 
@@ -430,13 +430,14 @@
       team.drawAura(ctx, time);
     }
 
-    // --- Draw connections (all dots slightly connected) ---
+    // --- Draw connections (every dot connected to every other dot) ---
+    const maxDist = Math.sqrt(width * width + height * height); // screen diagonal
     for (let i = 0; i < dots.length; i++) {
       for (let j = i + 1; j < dots.length; j++) {
         const d = dist(dots[i].x, dots[i].y, dots[j].x, dots[j].y);
-        if (d > connDistFar) continue;
 
-        const pairGlow = Math.max(dots[i].glow, dots[j].glow);
+        // Glow only counts when BOTH dots are glowing (both inside retreat circle)
+        const bothGlow = Math.min(dots[i].glow, dots[j].glow);
         // Blend individual breath with global breath for connection strength
         const avgBreath = (dots[i].getBreath(time) + dots[j].getBreath(time)) * 0.3 + gBreath * 0.4;
         const breathFactor = 0.6 + avgBreath * 0.4;
@@ -445,18 +446,23 @@
         if (d < connDist) {
           // Close connection — strength modulated by breathing
           const proximity = 1 - d / connDist;
-          opacity = proximity * 0.15 * breathFactor + proximity * pairGlow * 0.5;
-          lineWidth = 0.4 + pairGlow * 1.0 + avgBreath * 0.3;
-        } else {
-          // Far connection — very faint, keeps all dots linked
+          opacity = proximity * 0.15 * breathFactor + proximity * bothGlow * 0.5;
+          lineWidth = 0.8 + bothGlow * 2.0 + avgBreath * 0.6;
+        } else if (d < connDistFar) {
+          // Mid-range connection — faint
           const proximity = 1 - (d - connDist) / (connDistFar - connDist);
-          opacity = proximity * 0.025 * breathFactor + proximity * pairGlow * 0.08;
-          lineWidth = 0.2 + pairGlow * 0.3;
+          opacity = proximity * 0.025 * breathFactor + proximity * bothGlow * 0.08;
+          lineWidth = 0.4 + bothGlow * 0.6;
+        } else {
+          // Universal connection — very thin line between all dots
+          const proximity = 1 - (d - connDistFar) / (maxDist - connDistFar);
+          opacity = proximity * 0.012 * breathFactor;
+          lineWidth = 0.3;
         }
 
         if (opacity < 0.003) continue;
 
-        const color = lerpColor(COLOR_REST, COLOR_GLOW, pairGlow);
+        const color = lerpColor(COLOR_REST, COLOR_GLOW, bothGlow);
         ctx.beginPath();
         ctx.moveTo(dots[i].x, dots[i].y);
         ctx.lineTo(dots[j].x, dots[j].y);
